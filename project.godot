@@ -12,6 +12,7 @@ config_version=5
 
 config/name="GoInputBuffer"
 config/features=PackedStringArray("4.7", "Forward Plus")
+config/icon="uid://db4tl2gx6npil"
 
 [autoload]
 
