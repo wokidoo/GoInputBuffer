@@ -15,7 +15,7 @@ There are a bunch of sitautions where you might want user inputs to carry over s
 
 ## 🧠 How it works
 
-`GoInputBuffer` is a static class class that refrences a (singleton) `GoInputBufferInstance`.
+`GoInputBuffer` is a static class that refrences a (singleton) `GoInputBufferInstance`.
 
 Simply call `buffer_event()` on `GoInputBuffer` when you wish to add an InputEvent to the buffer along with the number of frames to buffer it with. The script also contains several helper classes that allow users to query actions in the input buffer later.
 
