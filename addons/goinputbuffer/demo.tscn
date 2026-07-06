@@ -1,0 +1,258 @@
+[gd_scene format=3 uid="uid://cvbgt67x4cjfp"]
+
+[sub_resource type="GDScript" id="GDScript_n2q8g"]
+resource_name = "demo"
+script/source = "extends Control
+@onready var consume_events_check_box: CheckBox = %ConsumeEventsCheckBox
+@onready var input_sequence_text_edit: TextEdit = %InputSequenceTextEdit
+@onready var result_text_label: RichTextLabel = %ResultTextLabel
+@onready var buffer_frames_spin_box: SpinBox = %BufferFramesSpinBox
+
+func _input(event: InputEvent) -> void:
+	if event.is_pressed():
+		GoInputBuffer.buffer_event(event,buffer_frames_spin_box.value)
+
+func _process(delta: float) -> void:
+	var sequence = input_sequence_text_edit.text.split(',',false)
+	if GoInputBuffer.is_action_sequence_buffered(sequence,
+		consume_events_check_box.button_pressed
+		):
+			result_text_label.text = \"[color=green]Sequence Found![/color]\"
+			await get_tree().create_timer(2.0).timeout
+			result_text_label.text = \"[color=red]Sequence Not Found...[/color]\"
+			
+"
+
+[sub_resource type="DPITexture" id="DPITexture_mu2l4"]
+_source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"8\"><path fill=\"none\" stroke=\"#fff\" stroke-width=\"2\" d=\"m12 2-4 3.5L4 2\"/></svg>
+"
+
+[sub_resource type="DPITexture" id="DPITexture_wvet5"]
+_source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"8\"><path fill=\"none\" stroke=\"#fff\" stroke-width=\"2\" d=\"m4 6 4-3.5L12 6\"/></svg>
+"
+
+[sub_resource type="ImageTexture" id="ImageTexture_n2q8g"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_l37ct"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_p6exk"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5qe42"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0.225, 0.225, 0.225, 0.6)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+corner_detail = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_55sed"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0, 0, 0, 0.6)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+corner_detail = 5
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_dwrx8"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0s23w"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_fem8e"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_uejsn"]
+
+[sub_resource type="Theme" id="Theme_mu2l4"]
+SpinBox/colors/down_disabled_icon_modulate = Color(0.8745098, 0.8745098, 0.8745098, 0)
+SpinBox/colors/down_hover_icon_modulate = Color(0.95, 0.95, 0.95, 1)
+SpinBox/colors/down_icon_modulate = Color(0.875, 0.875, 0.875, 1)
+SpinBox/colors/down_pressed_icon_modulate = Color(0.95, 0.95, 0.95, 1)
+SpinBox/colors/up_disabled_icon_modulate = Color(0.8745098, 0.8745098, 0.8745098, 0)
+SpinBox/colors/up_hover_icon_modulate = Color(0.95, 0.95, 0.95, 1)
+SpinBox/colors/up_icon_modulate = Color(0.875, 0.875, 0.875, 1)
+SpinBox/colors/up_pressed_icon_modulate = Color(0.95, 0.95, 0.95, 1)
+SpinBox/constants/buttons_vertical_separation = 0
+SpinBox/constants/buttons_width = 16
+SpinBox/constants/field_and_buttons_separation = 2
+SpinBox/constants/set_min_buttons_width_from_icons = 1
+SpinBox/icons/down = SubResource("DPITexture_mu2l4")
+SpinBox/icons/down_disabled = SubResource("DPITexture_mu2l4")
+SpinBox/icons/down_hover = SubResource("DPITexture_mu2l4")
+SpinBox/icons/down_pressed = SubResource("DPITexture_mu2l4")
+SpinBox/icons/up = SubResource("DPITexture_wvet5")
+SpinBox/icons/up_disabled = SubResource("DPITexture_wvet5")
+SpinBox/icons/up_hover = SubResource("DPITexture_wvet5")
+SpinBox/icons/up_pressed = SubResource("DPITexture_wvet5")
+SpinBox/icons/updown = SubResource("ImageTexture_n2q8g")
+SpinBox/styles/down_background = SubResource("StyleBoxEmpty_l37ct")
+SpinBox/styles/down_background_disabled = SubResource("StyleBoxEmpty_p6exk")
+SpinBox/styles/down_background_hovered = SubResource("StyleBoxFlat_5qe42")
+SpinBox/styles/down_background_pressed = SubResource("StyleBoxFlat_55sed")
+SpinBox/styles/field_and_buttons_separator = SubResource("StyleBoxEmpty_dwrx8")
+SpinBox/styles/up_background = SubResource("StyleBoxEmpty_0s23w")
+SpinBox/styles/up_background_disabled = SubResource("StyleBoxEmpty_fem8e")
+SpinBox/styles/up_background_hovered = SubResource("StyleBoxFlat_5qe42")
+SpinBox/styles/up_background_pressed = SubResource("StyleBoxFlat_55sed")
+SpinBox/styles/up_down_buttons_separator = SubResource("StyleBoxEmpty_uejsn")
+
+[sub_resource type="GDScript" id="GDScript_mu2l4"]
+resource_name = "input_buffer_display"
+script/source = "extends VBoxContainer
+@onready var buffer_spin_box: SpinBox = %BufferSpinBox
+
+func _process(delta: float) -> void:
+	get_children().map(func(node):
+		node.queue_free()
+		)
+	for event in GoInputBuffer.get_input_buffer():
+		var label:= Label.new()
+		label.autowrap_mode =TextServer.AUTOWRAP_WORD_SMART
+		label.text = str(event)
+		add_child(label)
+	buffer_spin_box.value = GoInputBuffer.get_input_buffer().size()
+"
+
+[sub_resource type="GDScript" id="GDScript_l37ct"]
+resource_name = "text_edit"
+script/source = "extends TextEdit
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.is_pressed():
+		if has_focus():
+			var mouse_pos = get_local_mouse_position()
+			var rect = Rect2(Vector2.ZERO,size)
+			if not rect.has_point(mouse_pos):
+				release_focus()
+"
+
+[node name="Demo" type="Control" unique_id=1477036971]
+clip_contents = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = SubResource("GDScript_n2q8g")
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=533357589]
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="HBoxContainer" type="HSplitContainer" parent="MarginContainer" unique_id=622637187]
+layout_mode = 2
+split_offsets = PackedInt32Array(-7)
+split_offset = -7
+
+[node name="PanelContainer" type="PanelContainer" parent="MarginContainer/HBoxContainer" unique_id=353624956]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VBoxContainer3" type="VBoxContainer" parent="MarginContainer/HBoxContainer/PanelContainer" unique_id=51571525]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/HBoxContainer/PanelContainer/VBoxContainer3" unique_id=352195633]
+layout_mode = 2
+
+[node name="RichTextLabel" type="RichTextLabel" parent="MarginContainer/HBoxContainer/PanelContainer/VBoxContainer3/HBoxContainer" unique_id=2115004425]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/normal_font_size = 24
+bbcode_enabled = true
+text = "Input Buffer"
+fit_content = true
+scroll_active = false
+
+[node name="BufferSpinBox" type="SpinBox" parent="MarginContainer/HBoxContainer/PanelContainer/VBoxContainer3/HBoxContainer" unique_id=600275045]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme = SubResource("Theme_mu2l4")
+rounded = true
+editable = false
+prefix = "Buffered Events: "
+
+[node name="PanelContainer" type="PanelContainer" parent="MarginContainer/HBoxContainer/PanelContainer/VBoxContainer3" unique_id=1864235592]
+clip_contents = true
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/HBoxContainer/PanelContainer/VBoxContainer3/PanelContainer" unique_id=1609918705]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer/PanelContainer/VBoxContainer3/PanelContainer/ScrollContainer" unique_id=1398220599]
+propagate_maximum_size = false
+clip_contents = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = SubResource("GDScript_mu2l4")
+
+[node name="PanelContainer2" type="PanelContainer" parent="MarginContainer/HBoxContainer" unique_id=1163658805]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer/PanelContainer2" unique_id=119864016]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/HBoxContainer/PanelContainer2/VBoxContainer" unique_id=620580707]
+layout_mode = 2
+
+[node name="RichTextLabel" type="RichTextLabel" parent="MarginContainer/HBoxContainer/PanelContainer2/VBoxContainer/HBoxContainer" unique_id=1060360467]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme_override_font_sizes/normal_font_size = 24
+bbcode_enabled = true
+text = "Input Sequence"
+fit_content = true
+scroll_active = false
+
+[node name="BufferFramesSpinBox" type="SpinBox" parent="MarginContainer/HBoxContainer/PanelContainer2/VBoxContainer/HBoxContainer" unique_id=1699479792]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 1.0
+value = 25.0
+rounded = true
+prefix = "Buffer Frames:"
+
+[node name="ConsumeEventsCheckBox" type="CheckBox" parent="MarginContainer/HBoxContainer/PanelContainer2/VBoxContainer/HBoxContainer" unique_id=1212567553]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Consumes buffered InputEvents if sequence is found."
+focus_mode = 0
+text = "Consume Events"
+
+[node name="InputSequenceTextEdit" type="TextEdit" parent="MarginContainer/HBoxContainer/PanelContainer2/VBoxContainer" unique_id=1781588286]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+placeholder_text = "Example:
+ui_accept,ui_cancel,ui_cancel"
+script = SubResource("GDScript_l37ct")
+
+[node name="ResultTextLabel" type="RichTextLabel" parent="MarginContainer/HBoxContainer/PanelContainer2/VBoxContainer" unique_id=695458907]
+unique_name_in_owner = true
+layout_mode = 2
+bbcode_enabled = true
+text = "[color=red]Sequence Not Found...[/color]"
+fit_content = true
